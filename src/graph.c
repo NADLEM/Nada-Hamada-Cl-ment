@@ -119,7 +119,7 @@ int estGrapheDeMarkov(liste_adjacence g) {
     return estValide;
 }
 
-/* ---------- Étape 3 : Export vers Mermaid ---------- */
+/* ---------- Étape 3 : Export vers Mermaid ----------- */
 
 char *getId(int num) {
     char *id = (char *)malloc(3 * sizeof(char)); // 2 lettres + '\0'

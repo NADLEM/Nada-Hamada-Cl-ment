@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     liste_adjacence g = readGraph(filename);
     printf("Graphe chargé. Nombre de sommets = %d\n\n", g.taille);
 
-    // Étape 1 : affichage du graphe
+    // Étape 1 :  affichage du graphe
     afficherListeAdjacence(g);
 
     // Étape 2 : vérification Markov

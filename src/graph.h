@@ -28,7 +28,7 @@ void afficherListe(liste L);
 liste_adjacence creerListeAdjacence(int taille);
 void afficherListeAdjacence(liste_adjacence g);
 
-// ---------- Lecture du fichier ----------
+// ---------- Lecture du fichier -----------
 liste_adjacence readGraph(const char *filename);
 
 // ---------- Libération de la mémoire ----------
