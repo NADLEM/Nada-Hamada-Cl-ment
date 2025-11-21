@@ -40,5 +40,5 @@ int estGrapheDeMarkov(liste_adjacence g);
 // ---------- Étape 3 : Export vers Mermaid ----------
 char *getId(int num);
 void exportToMermaid(liste_adjacence g, const char *filename);
-
+void dfs(liste_adjacence g, int sommet, int* visites, FILE* f);
 #endif

@@ -21,12 +21,20 @@ int main(int argc, char *argv[]) {
     else
         printf("\n Le graphe n'est pas un graphe de Markov.\n");
 
-    // Étape 3 : export vers Mermaid
+    // étape 3 : export vers Mermaid
     printf("\n--- Exportation du graphe au format Mermaid ---\n");
     exportToMermaid(g, "exemple_valid_step3.txt");
 
+    // étape 4 : trouver les états absorbants
+    printf("\n--- Recherche des états absorbants ---\n");
+    trouverEtatsAbsorbants(g);
+
+    // étape 5 : trouver les états accessibles à partir d’un sommet donné
+    printf("\n--- États accessibles depuis un sommet ---\n");
+    int sommetDepart = 1;  // modifie ça si tu veux tester un autre sommet
+    afficherEtatsAccessibles(g, sommetDepart);
+
     // Libération de la mémoire
     freeListeAdjacence(&g);
-
     return 0;
 }

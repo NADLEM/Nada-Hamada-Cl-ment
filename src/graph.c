@@ -166,3 +166,15 @@ void exportToMermaid(liste_adjacence g, const char *filename) {
     fclose(f);
     printf("Fichier Mermaid exporte dans : %s\n", filename);
 }
+void dfs(liste_adjacence g, int sommet, int* visites, FILE* f) {
+    visites[sommet] = 1;
+    fprintf(f, "%d\n", sommet + 1);
+
+    cellule *cur = g.tab[sommet].head;
+    while (cur != NULL) {
+        if (!visites[cur->arrivee - 1]) {
+            dfs(g, cur->arrivee - 1, visites, f);
+        }
+        cur = cur->suiv;
+    }
+}
