@@ -1,6 +1,7 @@
 📚 Projet C – Analyse de graphe de Markov
 
-Bienvenue dans notre projet réalisé dans le cadre du cours de programmation en C à l'université. Le but de ce projet était de manipuler un graphe orienté pondéré, de vérifier s’il s’agit bien d’un graphe de Markov, de l’exporter visuellement, d’identifier certains types d’états, et de simuler un comportement à travers une marche aléatoire.
+Bienvenue dans notre projet réalisé dans le cadre du cours de programmation en C à l'Efrei Paris.
+Le but de ce projet était de manipuler un graphe orienté pondéré, de vérifier s’il s’agit bien d’un graphe de Markov, de l’exporter visuellement, d’identifier certains types d’états, et de simuler un comportement à travers une marche aléatoire.
 
 🧠 Ce qu’on a fait
 
@@ -30,3 +31,9 @@ graph.c / graph.h → toutes les fonctions utiles pour gérer le graphe
 data/ → contient les fichiers textes de graphes à tester
 
 README.md → ce fichier que vous êtes en train de lire :)
+
+
+
+👥 Réalisé par :  
+- Nada Lemjadi  
+- Hamada Sbai
