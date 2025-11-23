@@ -178,3 +178,31 @@ void dfs(liste_adjacence g, int sommet, int* visites, FILE* f) {
         cur = cur->suiv;
     }
 }
+void simulerMarcheAleatoire(liste_adjacence g, int depart, int max_etapes) {
+    int courant = depart;
+    printf("Début de la marche aléatoire à partir du sommet %d\n", courant + 1);
+
+    for (int etape = 0; etape < max_etapes; etape++) {
+        printf("Étape %d : sommet %d\n", etape + 1, courant + 1);
+
+        cellule *cur = g.tab[courant].head;
+
+        // Pas de sortie possible (état absorbant)
+        if (cur == NULL) {
+            printf("Sommet %d est un état absorbant. Fin de la marche.\n", courant + 1);
+            break;
+        }
+
+        // Choisir un voisin selon les probabilités
+        float r = (float)rand() / (float)RAND_MAX;
+        float somme = 0.0;
+        while (cur != NULL) {
+            somme += cur->proba;
+            if (r <= somme) {
+                courant = cur->arrivee;
+                break;
+            }
+            cur = cur->suiv;
+        }
+    }
+}

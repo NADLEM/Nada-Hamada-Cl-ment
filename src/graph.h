@@ -41,4 +41,5 @@ int estGrapheDeMarkov(liste_adjacence g);
 char *getId(int num);
 void exportToMermaid(liste_adjacence g, const char *filename);
 void dfs(liste_adjacence g, int sommet, int* visites, FILE* f);
+void simulerMarcheAleatoire(liste_adjacence g, int depart, int max_etapes);
 #endif

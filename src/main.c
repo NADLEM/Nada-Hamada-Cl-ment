@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include "graph.h"
+#include <time.h>
 
 int main(int argc, char *argv[]) {
     const char *filename;
@@ -33,6 +35,13 @@ int main(int argc, char *argv[]) {
     printf("\n--- États accessibles depuis un sommet ---\n");
     int sommetDepart = 1;  // modifie ça si tu veux tester un autre sommet
     afficherEtatsAccessibles(g, sommetDepart);
+
+    // étape 6 : simuler une marche aléatoire
+    printf("\n--- Simulation d'une marche aléatoire ---\n");
+    int depart = 1; // numéro du sommet de départ (1-indexé)
+    int max_etapes = 10; // nombre maximum d’étapes à simuler
+    srand(time(NULL)); // Initialisation du générateur aléatoire
+    simulerMarcheAleatoire(g, depart - 1, max_etapes);
 
     // Libération de la mémoire
     freeListeAdjacence(&g);
