@@ -35,5 +35,5 @@ README.md → ce fichier que vous êtes en train de lire :)
 
 
 👥 Réalisé par :  
-- Nada Lemjadi  
+- Nada Lemdjadi  
 - Hamada Sbai
