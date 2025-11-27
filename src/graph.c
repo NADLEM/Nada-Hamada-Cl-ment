@@ -1,11 +1,12 @@
 #include "graph.h"
+#include <string.h>
+#include <time.h>
 
-/* ---------- Fonctions de base ---------- */
-
+// ---------- Fonctions de base ----------
 cellule *creerCellule(int arrivee, float proba) {
     cellule *c = (cellule *)malloc(sizeof(cellule));
     if (!c) { perror("malloc"); exit(EXIT_FAILURE); }
-    c->arrivee = arrivee;
+    c->arrivee = arrivee; // internal 0-index
     c->proba = proba;
     c->suiv = NULL;
     return c;
@@ -26,7 +27,7 @@ void ajouterCellule(liste *L, int arrivee, float proba) {
 void afficherListe(liste L) {
     cellule *cur = L.head;
     while (cur != NULL) {
-        printf(" -> (%d, %.2f)", cur->arrivee, cur->proba);
+        printf(" -> (%d, %.2f)", cur->arrivee + 1, cur->proba); // display 1-index
         cur = cur->suiv;
     }
     printf("\n");
@@ -48,8 +49,11 @@ void afficherListeAdjacence(liste_adjacence g) {
     }
 }
 
-/* ---------- Lecture du fichier (readGraph) ---------- */
-
+// ---------- Lecture du fichier (readGraph) ----------
+// expected file format:
+// n
+// depart arrivee proba
+// lines with 1-indexed nodes
 liste_adjacence readGraph(const char *filename) {
     FILE *file = fopen(filename, "rt");
     if (file == NULL) { perror(filename); exit(EXIT_FAILURE); }
@@ -70,15 +74,15 @@ liste_adjacence readGraph(const char *filename) {
             fprintf(stderr, "Warning: invalid edge %d -> %d (ignored)\n", depart, arrivee);
             continue;
         }
-        ajouterCellule(&g.tab[depart - 1], arrivee, proba);
+        // store internal as 0-index
+        ajouterCellule(&g.tab[depart - 1], arrivee - 1, proba);
     }
 
     fclose(file);
     return g;
 }
 
-/* ---------- Libération de la mémoire ---------- */
-
+// ---------- Libération de la mémoire ----------
 void freeListeAdjacence(liste_adjacence *g) {
     for (int i = 0; i < g->taille; ++i) {
         cellule *cur = g->tab[i].head;
@@ -94,8 +98,7 @@ void freeListeAdjacence(liste_adjacence *g) {
     g->taille = 0;
 }
 
-/* ---------- Étape 2 : Vérifier si le graphe est un graphe de Markov ---------- */
-
+// ---------- Étape 2 : Vérifier si le graphe est un graphe de Markov ----------
 int estGrapheDeMarkov(liste_adjacence g) {
     int estValide = 1;
 
@@ -119,12 +122,23 @@ int estGrapheDeMarkov(liste_adjacence g) {
     return estValide;
 }
 
-/* ---------- Étape 3 : Export vers Mermaid ----------- */
-
+// ---------- Étape 3 : Export vers Mermaid -----------
 char *getId(int num) {
-    char *id = (char *)malloc(3 * sizeof(char)); // 2 lettres + '\0'
-    id[0] = 'A' + (num - 1) % 26;
-    id[1] = '\0';
+    // produce short id (A, B, ..., Z, AA, AB, ...)
+    // num is 1-indexed for display convenience here
+    int n = num - 1;
+    char buf[8];
+    int idx = 0;
+    // create reversed letters base-26
+    char rev[8];
+    int pos = 0;
+    do {
+        rev[pos++] = 'A' + (n % 26);
+        n = n / 26 - 1;
+    } while (n >= 0 && pos < 7);
+    for (int i = 0; i < pos; ++i) buf[i] = rev[pos - 1 - i];
+    buf[pos] = '\0';
+    char *id = strdup(buf);
     return id;
 }
 
@@ -155,7 +169,7 @@ void exportToMermaid(liste_adjacence g, const char *filename) {
         cellule *cur = g.tab[i].head;
         while (cur != NULL) {
             char *from = getId(i + 1);
-            char *to = getId(cur->arrivee);
+            char *to = getId(cur->arrivee + 1);
             fprintf(f, "%s -->|%.2f|%s\n", from, cur->proba, to);
             free(from);
             free(to);
@@ -166,19 +180,53 @@ void exportToMermaid(liste_adjacence g, const char *filename) {
     fclose(f);
     printf("Fichier Mermaid exporte dans : %s\n", filename);
 }
-void dfs(liste_adjacence g, int sommet, int* visites, FILE* f) {
-    visites[sommet] = 1;
-    fprintf(f, "%d\n", sommet + 1);
 
-    cellule *cur = g.tab[sommet].head;
-    while (cur != NULL) {
-        if (!visites[cur->arrivee - 1]) {
-            dfs(g, cur->arrivee - 1, visites, f);
-        }
+// ---------- DFS pour accessibilité (utilisé par afficherEtatsAccessibles) ----------
+static void dfs_access(const liste_adjacence *g, int u, int *vis) {
+    vis[u] = 1;
+    cellule *cur = g->tab[u].head;
+    while (cur) {
+        if (!vis[cur->arrivee]) dfs_access(g, cur->arrivee, vis);
         cur = cur->suiv;
     }
 }
+
+void afficherEtatsAccessibles(liste_adjacence g, int sommetDepart) {
+    if (sommetDepart < 0 || sommetDepart >= g.taille) {
+        printf("Sommet de depart invalide.\n");
+        return;
+    }
+    int *vis = (int *)calloc(g.taille, sizeof(int));
+    dfs_access(&g, sommetDepart, vis);
+    printf("Etats accessibles depuis le sommet %d : ", sommetDepart + 1);
+    for (int i = 0; i < g.taille; ++i) if (vis[i]) printf("%d ", i + 1);
+    printf("\n");
+    free(vis);
+}
+
+// ---------- trouverEtatsAbsorbants ----------
+void trouverEtatsAbsorbants(liste_adjacence g) {
+    printf("Etats absorbants : ");
+    int found = 0;
+    for (int i = 0; i < g.taille; ++i) {
+        cellule *cur = g.tab[i].head;
+        if (!cur) continue;
+        // check if only self-loop with proba 1
+        if (cur->suiv == NULL && cur->arrivee == i && fabs(cur->proba - 1.0f) < 1e-6) {
+            printf("%d ", i + 1);
+            found = 1;
+        }
+    }
+    if (!found) printf("aucun");
+    printf("\n");
+}
+
+// ---------- Simulation marche aléatoire ----------
 void simulerMarcheAleatoire(liste_adjacence g, int depart, int max_etapes) {
+    if (depart < 0 || depart >= g.taille) {
+        printf("Sommet de depart invalide pour la simulation.\n");
+        return;
+    }
     int courant = depart;
     printf("Début de la marche aléatoire à partir du sommet %d\n", courant + 1);
 
@@ -195,14 +243,22 @@ void simulerMarcheAleatoire(liste_adjacence g, int depart, int max_etapes) {
 
         // Choisir un voisin selon les probabilités
         float r = (float)rand() / (float)RAND_MAX;
-        float somme = 0.0;
+        float somme = 0.0f;
+        int choisi = -1;
         while (cur != NULL) {
             somme += cur->proba;
             if (r <= somme) {
-                courant = cur->arrivee;
+                choisi = cur->arrivee;
                 break;
             }
             cur = cur->suiv;
         }
+        if (choisi == -1) {
+            // due to float rounding, pick last neighbor
+            cur = g.tab[courant].head;
+            while (cur->suiv) cur = cur->suiv;
+            choisi = cur->arrivee;
+        }
+        courant = choisi;
     }
 }

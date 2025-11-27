@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// ---------- Structures ----------
+// ---------- Structures pour la liste d'adjacence ----------
 typedef struct cellule {
-    int arrivee;
+    int arrivee;           // internal: 0-index
     float proba;
     struct cellule *suiv;
 } cellule;
@@ -20,7 +20,7 @@ typedef struct {
     int taille;   // nombre de sommets
 } liste_adjacence;
 
-// ---------- Fonctions de base ----------
+// ---------- Fonctions de base (partie 1) ----------
 cellule *creerCellule(int arrivee, float proba);
 liste creerListe();
 void ajouterCellule(liste *L, int arrivee, float proba);
@@ -28,18 +28,20 @@ void afficherListe(liste L);
 liste_adjacence creerListeAdjacence(int taille);
 void afficherListeAdjacence(liste_adjacence g);
 
-// ---------- Lecture du fichier -----------
+// ---------- Lecture / libération ----------
 liste_adjacence readGraph(const char *filename);
-
-// ---------- Libération de la mémoire ----------
 void freeListeAdjacence(liste_adjacence *g);
 
-// ---------- Étape 2 : Vérification Markov ----------
+// ---------- Vérification Markov ----------
 int estGrapheDeMarkov(liste_adjacence g);
 
-// ---------- Étape 3 : Export vers Mermaid ----------
+// ---------- Export Mermaid ----------
 char *getId(int num);
 void exportToMermaid(liste_adjacence g, const char *filename);
-void dfs(liste_adjacence g, int sommet, int* visites, FILE* f);
+
+// ---------- utilitaires demandés dans main ----------
+void trouverEtatsAbsorbants(liste_adjacence g);
+void afficherEtatsAccessibles(liste_adjacence g, int sommetDepart);
 void simulerMarcheAleatoire(liste_adjacence g, int depart, int max_etapes);
+
 #endif
